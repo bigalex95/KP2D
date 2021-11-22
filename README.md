@@ -1,9 +1,11 @@
 # Neural Outlier Rejection for Self-Supervised Keypoint Learning
 
 ## Overview
+
 ![](media/imgs/diagram_architecture.png)
-- **IO-Net:** A novel proxy task for the self-supervision of keypoint description. 
-- **KeyPointNet:**  An improved keypoint-network architecture that is especially amenable to robust keypoint detection and description.
+
+- **IO-Net:** A novel proxy task for the self-supervision of keypoint description.
+- **KeyPointNet:** An improved keypoint-network architecture that is especially amenable to robust keypoint detection and description.
 
 [**[Full paper]**](https://openreview.net/pdf?id=Skx82ySYPH)
 
@@ -55,6 +57,7 @@ mv hpatches-sequences-release HPatches
 ```
 
 Download the COCO dataset for training:
+
 ```bash
 mkdir -p /data/datasets/kp2d/coco/ && cd /data/datasets/kp2d/coco/
 wget http://images.cocodataset.org/zips/train2017.zip
@@ -71,7 +74,6 @@ make docker-run COMMAND="python scripts/train_keypoint_net.py kp2d/configs/v4.ya
 
 To train on multiple GPUs, simply replace `docker-run` with `docker-run-mpi`. Note that we provide the `v0-v4.yaml` config files, one for each version of our model as presented in the ablative analysis of our paper. For evaluating the pre-trained models corresponding to each config file please see hte following section.
 
-
 ### Pre-trained models:
 
 Download the pre-trained models from [here](https://tri-ml-public.s3.amazonaws.com/github/kp2d/models/pretrained_models.tar.gz) and place them in `/data/models/kp2d/`
@@ -79,37 +81,34 @@ Download the pre-trained models from [here](https://tri-ml-public.s3.amazonaws.c
 To evaluate any of the models, simply run:
 
 ```bash
-make docker-run COMMAND="python scripts/eval_keypoint_net.py --pretrained_model /data/models/kp2d/v4.ckpt --input /data/datasets/kp2d/HPatches/"
+python eval_keypoint_net.py --pretrained_model /data/models/kp2d/v4.ckpt --input /data/datasets/kp2d/HPatches/
 ```
 
 Evaluation for **`(320, 240)`**:
 
-| Model	| Repeatability |	Localization |	C1 |	C3 | 	C5 |	MScore |
-|---|---|---|---|---|---|---|
-| V0*|	0.644 | 1.087 | 0.459 |	0.816 |	0.888 |	0.518 |
-| V1*|	0.678 |	0.98  | 0.453 |	0.828 |	0.905 | 0.552 |
-| V2*|	0.679 |	0.942 |	0.534 |	0.86  |	0.914 |	0.573 |
-| V3|	0.685 |	0.885 |	0.602 |	0.836 |	0.886 |	0.52  |
-| V4|	0.687 |	0.892 |	0.593 |	0.867 |	0.91  |	0.546 |
-
+| Model | Repeatability | Localization | C1    | C3    | C5    | MScore |
+| ----- | ------------- | ------------ | ----- | ----- | ----- | ------ |
+| V0\*  | 0.644         | 1.087        | 0.459 | 0.816 | 0.888 | 0.518  |
+| V1\*  | 0.678         | 0.98         | 0.453 | 0.828 | 0.905 | 0.552  |
+| V2\*  | 0.679         | 0.942        | 0.534 | 0.86  | 0.914 | 0.573  |
+| V3    | 0.685         | 0.885        | 0.602 | 0.836 | 0.886 | 0.52   |
+| V4    | 0.687         | 0.892        | 0.593 | 0.867 | 0.91  | 0.546  |
 
 Evaluation for **`(640, 480)`**:
 
-| Model	| Repeatability |	Localization |	C1 |	C3 | 	C5 |	MScore |
-|---|---|---|---|---|---|---|
-| V0*|	0.633 | 1.157 | 0.45  |	0.81  |	0.89  |	0.486 |
-| V1*|	0.673 |	1.049 | 0.464 |	0.817 |	0.895 | 0.519 |
-| V2*|	0.68  |	1.008 |	0.51  |	0.855 |	0.921 |	0.544 |
-| V3|	0.682 |	0.972 |	0.55  |	0.812 |	0.883 |	0.486 |
-| V4|	0.684 |	0.972 |	0.566 |	0.84  |	0.9   |	0.511 |
+| Model | Repeatability | Localization | C1    | C3    | C5    | MScore |
+| ----- | ------------- | ------------ | ----- | ----- | ----- | ------ |
+| V0\*  | 0.633         | 1.157        | 0.45  | 0.81  | 0.89  | 0.486  |
+| V1\*  | 0.673         | 1.049        | 0.464 | 0.817 | 0.895 | 0.519  |
+| V2\*  | 0.68          | 1.008        | 0.51  | 0.855 | 0.921 | 0.544  |
+| V3    | 0.682         | 0.972        | 0.55  | 0.812 | 0.883 | 0.486  |
+| V4    | 0.684         | 0.972        | 0.566 | 0.84  | 0.9   | 0.511  |
 
-*-these models were trained again after submission - the numbers deviate slightly from the paper, however the same trends can be observed.
-
+\*-these models were trained again after submission - the numbers deviate slightly from the paper, however the same trends can be observed.
 
 ### Over-fitting Examples
 
 These examples show the model over-fitting on single images. For each image, we show the original frame with detected keypoints (left), the score map (center) and the random crop used for training (right). As training progresses, the model learns to detect salient regions in the images.
-
 
 - **Toy example:**
 <p align="center">
@@ -150,9 +149,10 @@ These examples show the model over-fitting on single images. For each image, we 
 
 The source code is released under the [MIT license](LICENSE.md).
 
-
 ### Citation
+
 Please use the following citation when referencing our work:
+
 ```
 @inproceedings{
 tang2020neural,
