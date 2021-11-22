@@ -322,7 +322,7 @@ def non_spatial_augmentation(img_warp_ori, jitter_paramters, color_order=[0,1,2]
     img_warp = torch.stack(img_warp, dim=0)
     return img_warp
 
-def ha_augment_sample(data, jitter_paramters=[0.5, 0.5, 0.2, 0.05], patch_ratio=0.7, scaling_amplitude=0.2, max_angle=pi/4):
+def ha_augment_sample(data, jitter_paramters=[0.5, 0.5, 0.2, 0.05], patch_ratio=0.7, scaling_amplitude=0.2, max_angle=pi/4, cmpDevice=torch.device('cuda')):
     """Apply Homography Adaptation image augmentation."""
     target_img = data['image'].unsqueeze(0)
     _, _, H, W = target_img.shape
@@ -333,7 +333,7 @@ def ha_augment_sample(data, jitter_paramters=[0.5, 0.5, 0.2, 0.05], patch_ratio=
         patch_ratio=patch_ratio, 
         scaling_amplitude=scaling_amplitude, 
         max_angle=max_angle)
-    homography = torch.from_numpy(homography).float().to(device)
+    homography = torch.from_numpy(homography).float().to(cmpDevice)
 
     source_grid = image_grid(1, H, W,
                     dtype=target_img.dtype,

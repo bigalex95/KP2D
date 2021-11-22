@@ -1,5 +1,7 @@
 # Copyright 2020 Toyota Research Institute.  All rights reserved.
 
+import time
+
 import numpy as np
 import torch
 import torchvision.transforms as transforms
@@ -11,7 +13,7 @@ from kp2d.evaluation.detector_evaluation import compute_repeatability
 from kp2d.utils.image import to_color_normalized, to_gray_normalized
 
 
-def evaluate_keypoint_net(data_loader, keypoint_net, output_shape=(320, 240), top_k=300, use_color=True):
+def evaluate_keypoint_net(data_loader, keypoint_net, output_shape=(320, 240), top_k=300, use_color=True, cmpDevice=torch.device('cuda')):
     """Keypoint net evaluation script. 
 
     Parameters
@@ -33,18 +35,29 @@ def evaluate_keypoint_net(data_loader, keypoint_net, output_shape=(320, 240), to
     conf_threshold = 0.0
     localization_err, repeatability = [], []
     correctness1, correctness3, correctness5, MScore = [], [], [], []
+    count = []
 
     with torch.no_grad():
         for i, sample in tqdm(enumerate(data_loader), desc="evaluate_keypoint_net"):
             if use_color:
-                image = to_color_normalized(sample['image'].cuda())
-                warped_image = to_color_normalized(sample['warped_image'].cuda())
+                if torch.cuda.is_available():
+                    image = to_color_normalized(sample['image'].to(cmpDevice))
+                    warped_image = to_color_normalized(sample['warped_image'].to(cmpDevice))
+                else:
+                    image = to_color_normalized(sample['image'])
+                    warped_image = to_color_normalized(sample['warped_image'])
             else:
-                image = to_gray_normalized(sample['image'].cuda())
-                warped_image = to_gray_normalized(sample['warped_image'].cuda())
+                if torch.cuda.is_available():
+                    image = to_gray_normalized(sample['image'].to(cmpDevice))
+                    warped_image = to_gray_normalized(sample['warped_image'].to(cmpDevice))
+                else:
+                    image = to_gray_normalized(sample['image'])
+                    warped_image = to_gray_normalized(sample['warped_image'])
+                
 
             score_1, coord_1, desc1 = keypoint_net(image)
             score_2, coord_2, desc2 = keypoint_net(warped_image)
+
             B, C, Hc, Wc = desc1.shape
 
             # Scores & Descriptors
@@ -61,6 +74,7 @@ def evaluate_keypoint_net(data_loader, keypoint_net, output_shape=(320, 240), to
 
             # Prepare data for eval
             data = {'image': sample['image'].numpy().squeeze(),
+                    'warped_image': sample['warped_image'].numpy().squeeze(),
                     'image_shape' : output_shape,
                     'warped_image': sample['warped_image'].numpy().squeeze(),
                     'homography': sample['homography'].squeeze().numpy(),
@@ -81,8 +95,20 @@ def evaluate_keypoint_net(data_loader, keypoint_net, output_shape=(320, 240), to
             correctness5.append(c3)
 
             # Compute matching score
+            start = time.time()
             mscore = compute_matching_score(data, keep_k_points=top_k)
+            end = time.time()
+            # print()
+            # print("*"*40)
+            # print(end - start)
+            # print("*"*40)
             MScore.append(mscore)
+            count.append(end - start)
+    
+    print()
+    print("*"*40)
+    print(np.mean(count))
+    print("*"*40)
 
     return np.mean(repeatability), np.mean(localization_err), \
            np.mean(correctness1), np.mean(correctness3), np.mean(correctness5), np.mean(MScore)

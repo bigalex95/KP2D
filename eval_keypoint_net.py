@@ -31,7 +31,7 @@ def main():
 
     args = parser.parse_args()
     cmpDevice = torch.device(args.device)
-    checkpoint = torch.load(args.pretrained_model)
+    checkpoint = torch.load(args.pretrained_model, map_location=args.device)
     model_args = checkpoint['config']['model']['params']
 
     # Check model type
@@ -49,7 +49,10 @@ def main():
         keypoint_net = KeypointResnet()
 
     keypoint_net.load_state_dict(checkpoint['state_dict'])
-    keypoint_net = keypoint_net.to(cmpDevice)
+    
+    if torch.cuda.is_available():
+        keypoint_net = keypoint_net.to(cmpDevice)
+
     keypoint_net.eval()
     print('Loaded KeypointNet from {}'.format(args.pretrained_model))
     print('KeypointNet params {}'.format(model_args))
@@ -74,7 +77,8 @@ def main():
             keypoint_net,
             output_shape=params['res'],
             top_k=params['top_k'],
-            use_color=True)
+            use_color=True,
+            cmpDevice=cmpDevice)
 
         print('Repeatability {0:.3f}'.format(rep))
         print('Localization Error {0:.3f}'.format(loc))

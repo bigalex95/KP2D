@@ -278,7 +278,7 @@ class KeypointNetwithIOLoss(torch.nn.Module):
             border_mask_ori[:,Hc-1] = 0
             border_mask_ori[:,:,0] = 0
             border_mask_ori[:,:,Wc-1] = 0
-            border_mask_ori = border_mask_ori.gt(1e-3).to(device)
+            border_mask_ori = border_mask_ori.gt(1e-3).cuda()
 
             # Out-of-bourder(OOB) mask. Not nessesary in our case, since it's prevented at HA procedure already. Kept here for future usage.
             oob_mask2 = source_uv_warped_norm[:,:,:,0].lt(1) & source_uv_warped_norm[:,:,:,0].gt(-1) & source_uv_warped_norm[:,:,:,1].lt(1) & source_uv_warped_norm[:,:,:,1].gt(-1)
@@ -317,12 +317,12 @@ class KeypointNetwithIOLoss(torch.nn.Module):
             if self.with_io:
                 # Compute IO loss
                 top_k_score1, top_k_indice1 = source_score.view(B,Hc*Wc).topk(self.top_k2, dim=1, largest=False)
-                top_k_mask1 = torch.zeros(B, Hc * Wc).to(device)
+                top_k_mask1 = torch.zeros(B, Hc * Wc).cuda()
                 top_k_mask1.scatter_(1, top_k_indice1, value=1)
                 top_k_mask1 = top_k_mask1.gt(1e-3).view(B,Hc,Wc)
 
                 top_k_score2, top_k_indice2 = target_score.view(B,Hc*Wc).topk(self.top_k2, dim=1, largest=False)
-                top_k_mask2 = torch.zeros(B, Hc * Wc).to(device)
+                top_k_mask2 = torch.zeros(B, Hc * Wc).cuda()
                 top_k_mask2.scatter_(1, top_k_indice2, value=1)
                 top_k_mask2 = top_k_mask2.gt(1e-3).view(B,Hc,Wc)
 

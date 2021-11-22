@@ -9,6 +9,29 @@ import cv2
 import numpy as np
 
 from kp2d.utils.keypoints import warp_keypoints
+import scipy as sp
+
+
+def drawMatches(img1, kp1, img2, kp2, matches):
+    img1 = cv2.normalize(img1, None, 255,0, cv2.NORM_MINMAX)
+    img2 = cv2.normalize(img2, None, 255,0, cv2.NORM_MINMAX)
+    h1, w1 = img1.shape[:2]
+    h2, w2 = img2.shape[:2]
+    view = sp.zeros((max(h1, h2), w1 + w2, 3), sp.uint8)
+    view[:h1, :w1, :] = img1  
+    view[:h2, w1:, :] = img2
+    view[:, :, 1] = view[:, :, 0]  
+    view[:, :, 2] = view[:, :, 0]
+
+    for m in matches:
+        # draw the keypoints
+        # print m.queryIdx, m.trainIdx, m.distance
+        color = tuple([sp.random.randint(0, 255) for _ in range(3)])
+        cv2.line(view, (int(kp1[m.queryIdx][0]), int(kp2[m.queryIdx][1])) , (int(kp2[m.trainIdx][0] + w1), int(kp2[m.trainIdx][1])), color, 3)
+
+
+    cv2.imshow("view", view)
+    cv2.waitKey(1)
 
 
 def select_k_best(points, descriptors, k):
@@ -106,6 +129,7 @@ def compute_matching_score(data, keep_k_points=1000):
     ms: float
         Matching score.
     """
+
     shape = data['image_shape']
     real_H = data['homography']
 
@@ -154,6 +178,27 @@ def compute_matching_score(data, keep_k_points=1000):
     score2 = count2 / np.maximum(np.sum(vis), 1.0)
 
     ms = (score1 + score2) / 2
+
+    # print(ms)
+    # # Visualize
+    # image = data['image']
+    # warped_image = data['warped_image']
+
+    # # Create matcher
+    # bf = cv2.BFMatcher(cv2.NORM_L2, crossCheck=False)
+
+    # # Do matching
+    # matches = bf.match(desc, warped_desc)
+
+    # # Sort the matches based on distance.  Least distance
+    # # is better
+    # matches = sorted(matches, key=lambda val: val.distance)
+
+    # image = np.transpose(image, (1, 2, 0))
+    # warped_image = np.transpose(warped_image, (1, 2, 0))
+
+    # # Show only the top 10 matches
+    # drawMatches(image, keypoints, warped_image, warped_keypoints, matches[:10])
 
     return ms
 

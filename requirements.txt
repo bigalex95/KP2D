@@ -1,0 +1,8 @@
+torch 
+torchvision 
+torchaudio
+opencv-python
+termcolor
+tqdm
+scipy
+yacs
