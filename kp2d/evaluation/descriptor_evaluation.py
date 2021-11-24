@@ -22,16 +22,26 @@ def drawMatches(img1, kp1, img2, kp2, matches):
     view[:h2, w1:, :] = img2
     view[:, :, 1] = view[:, :, 0]  
     view[:, :, 2] = view[:, :, 0]
+    # print(kp1.shape)
+    # print(kp2.shape)
+    # print(len(matches))
+    # print(view.shape)
 
     for m in matches:
         # draw the keypoints
         # print m.queryIdx, m.trainIdx, m.distance
+
+        test = kp1[m.queryIdx]
+        test2 = kp2[m.queryIdx]
+
         color = tuple([sp.random.randint(0, 255) for _ in range(3)])
-        cv2.line(view, (int(kp1[m.queryIdx][0]), int(kp2[m.queryIdx][1])) , (int(kp2[m.trainIdx][0] + w1), int(kp2[m.trainIdx][1])), color, 3)
+        cv2.line(view, (int(kp1[m.queryIdx][0]), int(kp2[m.queryIdx][1])) , (int(kp2[m.trainIdx][0] + w1), int(kp2[m.trainIdx][1])), color, 2)
+        cv2.circle(view, (int(kp1[m.queryIdx][0]), int(kp2[m.queryIdx][1])), 4, (255, 0, 0))
+        cv2.circle(view, (int(kp2[m.trainIdx][0] + w1), int(kp2[m.trainIdx][1])), 4, (255, 0, 0))
 
 
     cv2.imshow("view", view)
-    cv2.waitKey(1)
+    cv2.waitKey(100)
 
 
 def select_k_best(points, descriptors, k):
@@ -185,8 +195,10 @@ def compute_matching_score(data, keep_k_points=1000):
     # warped_image = data['warped_image']
 
     # # Create matcher
-    # bf = cv2.BFMatcher(cv2.NORM_L2, crossCheck=False)
+    # bf = cv2.BFMatcher(cv2.NORM_L2, crossCheck=True)
 
+    # # print(desc)
+    
     # # Do matching
     # matches = bf.match(desc, warped_desc)
 
@@ -198,7 +210,7 @@ def compute_matching_score(data, keep_k_points=1000):
     # warped_image = np.transpose(warped_image, (1, 2, 0))
 
     # # Show only the top 10 matches
-    # drawMatches(image, keypoints, warped_image, warped_keypoints, matches[:10])
+    # drawMatches(image, keypoints, warped_image, warped_keypoints, matches[:20])
 
     return ms
 

@@ -81,7 +81,7 @@ Download the pre-trained models from [here](https://tri-ml-public.s3.amazonaws.c
 To evaluate any of the models, simply run:
 
 ```bash
-python eval_keypoint_net.py --pretrained_model /data/models/kp2d/v4.ckpt --input /data/datasets/kp2d/HPatches/
+python eval_keypoint_net.py --pretrained_model ./data/models/kp2d/v4.ckpt --input ./data/datasets/kp2d/HPatches/
 ```
 
 Evaluation for **`(320, 240)`**:

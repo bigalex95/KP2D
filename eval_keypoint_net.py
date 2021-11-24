@@ -57,7 +57,7 @@ def main():
     print('Loaded KeypointNet from {}'.format(args.pretrained_model))
     print('KeypointNet params {}'.format(model_args))
 
-    eval_params = [{'res': (320, 240), 'top_k': 300, }] if net_type is KeypointNet else [{'res': (320, 256), 'top_k': 300, }] # KeypointResnet needs (320,256)
+    eval_params = [{'res': (320, 240), 'top_k': 1000, }] if net_type is KeypointNet else [{'res': (320, 256), 'top_k': 300, }] # KeypointResnet needs (320,256)
     eval_params += [{'res': (640, 480), 'top_k': 1000, }]
 
     for params in eval_params:
